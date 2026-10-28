@@ -4,7 +4,6 @@ from django.urls import reverse
 from articles.models import Catalog
 
 
-# Create your tests here.
 class CatalogModelTest(TestCase):
     def test_catalog_creation(self):
         catalog = Catalog.objects.create(name="Электроника")
