@@ -10,3 +10,10 @@ class Article(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+
+class Catalog(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self) -> str:
+        return self.name
