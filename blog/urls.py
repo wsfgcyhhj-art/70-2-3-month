@@ -18,11 +18,22 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from articles.views import articles_list, catalog_list
+from articles.views import (
+    add_comment,
+    api_article_detail,
+    api_articles_list,
+    article_detail,
+    articles_list,
+    catalog_list,
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", articles_list),
     path("catalog/", catalog_list),
     path("catalogs/", catalog_list),
+    path("articles/<int:pk>/", article_detail, name="article_detail"),
+    path("articles/<int:pk>/comment/", add_comment, name="add_comment"),
+    path("api/articles/", api_articles_list),
+    path("api/articles/<int:pk>/", api_article_detail),
 ]

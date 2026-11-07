@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ article.title }}</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .article { margin-bottom: 40px; border-bottom: 1px solid #ccc; padding-bottom: 20px; }
+        .comments-section { margin-top: 30px; }
+        .comment { background: #f9f9f9; padding: 15px; margin-bottom: 15px; border-radius: 4px; border-left: 3px solid #0066cc; }
+        .comment-header { font-size: 0.9em; color: #666; margin-bottom: 5px; }
+        .comment-author { font-weight: bold; color: #222; }
+        .empty-comments { font-style: italic; color: #888; }
+        .comment-form-section { margin-top: 30px; }
+        .comment-form div { margin-bottom: 15px; }
+        .comment-form label { display: block; font-weight: bold; margin-bottom: 5px; }
+        .comment-form input[type="text"], .comment-form textarea { width: 100%; box-sizing: border-box; padding: 8px; }
+        .btn-submit { padding: 10px 20px; background-color: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-submit:hover { background-color: #0052a3; }
+        .errorlist { color: #d9534f; list-style-type: none; padding-left: 0; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <article class="article">
+        <h1>{{ article.title }}</h1>
+        <p class="article-meta">Опубликовано: {{ article.created_at|date:"d.m.Y H:i" }} | Рейтинг: {{ article.rate }}</p>
+        <div class="article-content">
+            {{ article.text|linebreaks }}
+        </div>
+    </article>
+
+    <section class="comments-section">
+        <h2>Комментарии</h2>
+        {% for comment in comments %}
+            <div class="comment">
+                <div class="comment-header">
+                    <span class="comment-author">{{ comment.author_name }}</span> &bull;
+                    <span class="comment-date">{{ comment.created_at|date:"d.m.Y H:i" }}</span>
+                </div>
+                <div class="comment-body">
+                    {{ comment.text|linebreaks }}
+                </div>
+            </div>
+        {% empty %}
+            <p class="empty-comments">Комментариев пока нет. Будьте первым!</p>
+        {% endfor %}
+    </section>
+
+    <section class="comment-form-section">
+        <h3>Оставить комментарий</h3>
+        <form action="{% url 'add_comment' article.pk %}" method="post" class="comment-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn-submit">Отправить комментарий</button>
+        </form>
+    </section>
+</body>
+</html>
