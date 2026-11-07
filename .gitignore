@@ -295,3 +295,15 @@ pip-selfcheck.json
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,django,python,venv
+
+### AI & Agent tools / Spec-Kit ###
+AGENTS.md
+agents.md
+my-project/
+specs/
+the-delegation/
+.specify/
+.claude/
+.cursor/
+.gemini/
+.aider*
