@@ -13,15 +13,28 @@
         .comment-author { font-weight: bold; color: #222; }
         .empty-comments { font-style: italic; color: #888; }
         .comment-form-section { margin-top: 30px; }
-        .comment-form div { margin-bottom: 15px; }
+        .comment-form p { margin-bottom: 15px; }
         .comment-form label { display: block; font-weight: bold; margin-bottom: 5px; }
-        .comment-form input[type="text"], .comment-form textarea { width: 100%; box-sizing: border-box; padding: 8px; }
+        .comment-form textarea { width: 100%; box-sizing: border-box; padding: 8px; }
         .btn-submit { padding: 10px 20px; background-color: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; }
         .btn-submit:hover { background-color: #0052a3; }
         .errorlist { color: #d9534f; list-style-type: none; padding-left: 0; margin-top: 5px; }
+        .messages { list-style: none; padding: 0; margin-bottom: 20px; }
+        .messages li { padding: 10px 15px; border-radius: 4px; margin-bottom: 10px; }
+        .messages .error { background: #fde8e8; color: #c53030; border: 1px solid #f8b4b4; }
+        .messages .success { background: #def7ec; color: #03543f; border: 1px solid #84e1bc; }
+        .auth-notice { background: #eef2ff; padding: 15px; border-radius: 4px; color: #3730a3; }
     </style>
 </head>
 <body>
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
     <article class="article">
         <h1>{{ article.title }}</h1>
         <p class="article-meta">Опубликовано: {{ article.created_at|date:"d.m.Y H:i" }} | Рейтинг: {{ article.rate }}</p>
@@ -35,16 +48,18 @@
         {% for comment in comments %}
             <div class="comment">
                 <div class="comment-header">
-                    <span class="comment-author">{{ comment.author_name }}</span> &bull;
+                    <span class="comment-author">{{ comment.user.username }}</span> &bull;
                     <span class="comment-date">{{ comment.created_at|date:"d.m.Y H:i" }}</span>
                 </div>
                 <div class="comment-body">
                     {{ comment.text|linebreaks }}
                 </div>
-                <div class="comment-actions" style="margin-top: 8px; font-size: 0.85em;">
-                    <a href="{% url 'edit_comment' comment.pk %}" style="margin-right: 12px; color: #0066cc;">Редактировать</a>
-                    <a href="{% url 'delete_comment' comment.pk %}" style="color: #cc0000;">Удалить</a>
-                </div>
+                {% if request.user.is_authenticated and comment.user == request.user %}
+                    <div class="comment-actions" style="margin-top: 8px; font-size: 0.85em;">
+                        <a href="{% url 'edit_comment' comment.pk %}" style="margin-right: 12px; color: #0066cc;">Редактировать</a>
+                        <a href="{% url 'delete_comment' comment.pk %}" style="color: #cc0000;">Удалить</a>
+                    </div>
+                {% endif %}
             </div>
         {% empty %}
             <p class="empty-comments">Комментариев пока нет. Будьте первым!</p>
@@ -53,11 +68,15 @@
 
     <section class="comment-form-section">
         <h3>Оставить комментарий</h3>
-        <form action="{% url 'add_comment' article.pk %}" method="post" class="comment-form">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn-submit">Отправить комментарий</button>
-        </form>
+        {% if request.user.is_authenticated %}
+            <form action="{% url 'add_comment' article.pk %}" method="post" class="comment-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn-submit">Отправить комментарий</button>
+            </form>
+        {% else %}
+            <p class="auth-notice">Оставлять комментарии могут только авторизованные пользователи.</p>
+        {% endif %}
     </section>
 </body>
 </html>

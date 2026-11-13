@@ -1,3 +1,5 @@
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
@@ -68,6 +70,7 @@ def article_detail(request: HttpRequest, pk: int) -> HttpResponse:
     )
 
 
+@login_required
 @require_POST
 def add_comment(request: HttpRequest, pk: int) -> HttpResponse:
     article = get_object_or_404(Article, pk=pk)
@@ -75,6 +78,7 @@ def add_comment(request: HttpRequest, pk: int) -> HttpResponse:
     if form.is_valid():
         comment = form.save(commit=False)
         comment.article = article
+        comment.user = request.user
         comment.save()
         return redirect("article_detail", pk=article.pk)
 
@@ -90,8 +94,13 @@ def add_comment(request: HttpRequest, pk: int) -> HttpResponse:
     )
 
 
+@login_required
 def edit_comment(request: HttpRequest, pk: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=pk)
+    if comment.user != request.user:
+        messages.error(request, "Это не ваш комментарий")
+        return redirect("article_detail", pk=comment.article.pk)
+
     if request.method == "POST":
         form = CommentForm(request.POST, instance=comment)
         if form.is_valid():
@@ -110,8 +119,13 @@ def edit_comment(request: HttpRequest, pk: int) -> HttpResponse:
     )
 
 
+@login_required
 def delete_comment(request: HttpRequest, pk: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=pk)
+    if comment.user != request.user:
+        messages.error(request, "Это не ваш комментарий")
+        return redirect("article_detail", pk=comment.article.pk)
+
     article_pk = comment.article.pk
     if request.method == "POST":
         comment.delete()
@@ -124,5 +138,18 @@ def delete_comment(request: HttpRequest, pk: int) -> HttpResponse:
             "comment": comment,
         },
     )
+
+
+@login_required
+def my_comments(request: HttpRequest) -> HttpResponse:
+    comments = request.user.comments.select_related("article").all()
+    return render(
+        request,
+        "articles/my_comments.html",
+        {
+            "comments": comments,
+        },
+    )
+
 
 

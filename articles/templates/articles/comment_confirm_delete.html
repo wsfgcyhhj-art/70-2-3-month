@@ -18,7 +18,7 @@
         <h1>Удаление комментария</h1>
         <p>Вы действительно хотите удалить следующий комментарий?</p>
         <div class="comment-preview">
-            <strong>{{ comment.author_name }}</strong> ({{ comment.created_at|date:"d.m.Y H:i" }}):
+            <strong>{{ comment.user.username }}</strong> ({{ comment.created_at|date:"d.m.Y H:i" }}):
             <p>{{ comment.text }}</p>
         </div>
         <form method="post">
