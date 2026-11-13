@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Удаление комментария</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .confirm-card { background: #fff5f5; border: 1px solid #fed7d7; padding: 25px; border-radius: 6px; }
+        .comment-preview { background: #fff; border-left: 3px solid #e53e3e; padding: 12px; margin: 15px 0; }
+        .btn-delete { padding: 10px 20px; background-color: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-delete:hover { background-color: #c53030; }
+        .btn-cancel { margin-left: 15px; color: #4a5568; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="confirm-card">
+        <h1>Удаление комментария</h1>
+        <p>Вы действительно хотите удалить следующий комментарий?</p>
+        <div class="comment-preview">
+            <strong>{{ comment.author_name }}</strong> ({{ comment.created_at|date:"d.m.Y H:i" }}):
+            <p>{{ comment.text }}</p>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn-delete">Удалить</button>
+            <a href="{% url 'article_detail' comment.article.pk %}" class="btn-cancel">Отмена</a>
+        </form>
+    </div>
+</body>
+</html>

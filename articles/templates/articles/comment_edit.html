@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактирование комментария</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .edit-card { background: #fdfdfd; border: 1px solid #ddd; padding: 25px; border-radius: 6px; }
+        .comment-form p { margin-bottom: 15px; }
+        .comment-form label { display: block; font-weight: bold; margin-bottom: 5px; }
+        .comment-form input[type="text"], .comment-form textarea { width: 100%; box-sizing: border-box; padding: 8px; }
+        .btn-submit { padding: 10px 20px; background-color: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-submit:hover { background-color: #0052a3; }
+        .btn-cancel { margin-left: 15px; color: #666; text-decoration: none; }
+        .errorlist { color: #d9534f; list-style-type: none; padding-left: 0; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="edit-card">
+        <h1>Редактирование комментария</h1>
+        <form method="post" class="comment-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn-submit">Сохранить</button>
+            <a href="{% url 'article_detail' comment.article.pk %}" class="btn-cancel">Отмена</a>
+        </form>
+    </div>
+</body>
+</html>

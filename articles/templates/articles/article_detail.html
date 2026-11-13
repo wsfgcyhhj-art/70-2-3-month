@@ -41,6 +41,10 @@
                 <div class="comment-body">
                     {{ comment.text|linebreaks }}
                 </div>
+                <div class="comment-actions" style="margin-top: 8px; font-size: 0.85em;">
+                    <a href="{% url 'edit_comment' comment.pk %}" style="margin-right: 12px; color: #0066cc;">Редактировать</a>
+                    <a href="{% url 'delete_comment' comment.pk %}" style="color: #cc0000;">Удалить</a>
+                </div>
             </div>
         {% empty %}
             <p class="empty-comments">Комментариев пока нет. Будьте первым!</p>

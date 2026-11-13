@@ -1,5 +1,6 @@
 from django.test import TestCase
 
+from articles.forms import CommentForm
 from articles.models import Article, Catalog, Comment
 from articles.views import _article_to_dict
 
@@ -135,4 +136,85 @@ class AddCommentViewTest(TestCase):
         data = {"author_name": "Тестировщик", "text": "Текст"}
         response = self.client.post("/articles/999/comment/", data)
         self.assertEqual(response.status_code, 404)
+
+
+class CommentFormValidationTest(TestCase):
+    def test_clean_text_too_short(self):
+        form = CommentForm(data={"author_name": "Иван", "text": "1234"})
+        self.assertFalse(form.is_valid())
+        self.assertIn("text", form.errors)
+        self.assertIn("не менее 5 символов", form.errors["text"][0])
+
+    def test_clean_text_banned_word(self):
+        form = CommentForm(data={"author_name": "Иван", "text": "Это чистый СПАМ для всех"})
+        self.assertFalse(form.is_valid())
+        self.assertIn("text", form.errors)
+        self.assertIn("запрещённое слово", form.errors["text"][0])
+
+    def test_clean_author_name_only_digits(self):
+        form = CommentForm(data={"author_name": "12345", "text": "Хороший комментарий"})
+        self.assertFalse(form.is_valid())
+        self.assertIn("author_name", form.errors)
+        self.assertIn("не может состоять только из цифр", form.errors["author_name"][0])
+
+    def test_clean_valid_form(self):
+        form = CommentForm(data={"author_name": "User42", "text": "Отличная статья, спасибо!"})
+        self.assertTrue(form.is_valid())
+
+
+class CommentEditViewTest(TestCase):
+    def setUp(self):
+        self.article = Article.objects.create(title="Статья", text="Текст статьи", rate=1)
+        self.comment = Comment.objects.create(
+            article=self.article, author_name="Иван", text="Исходный комментарий"
+        )
+
+    def test_edit_comment_get(self):
+        response = self.client.get(f"/comments/{self.comment.pk}/edit/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Исходный комментарий")
+
+    def test_edit_comment_post_success(self):
+        data = {"author_name": "Иван Обновленный", "text": "Обновленный комментарий"}
+        response = self.client.post(f"/comments/{self.comment.pk}/edit/", data)
+        self.assertRedirects(response, f"/articles/{self.article.pk}/")
+        self.comment.refresh_from_db()
+        self.assertEqual(self.comment.author_name, "Иван Обновленный")
+        self.assertEqual(self.comment.text, "Обновленный комментарий")
+
+    def test_edit_comment_post_invalid(self):
+        data = {"author_name": "999", "text": "12"}
+        response = self.client.post(f"/comments/{self.comment.pk}/edit/", data)
+        self.assertEqual(response.status_code, 200)
+        self.comment.refresh_from_db()
+        self.assertEqual(self.comment.text, "Исходный комментарий")
+        self.assertContains(response, "не может состоять только из цифр")
+
+    def test_edit_comment_not_found(self):
+        response = self.client.get("/comments/999/edit/")
+        self.assertEqual(response.status_code, 404)
+
+
+class CommentDeleteViewTest(TestCase):
+    def setUp(self):
+        self.article = Article.objects.create(title="Статья", text="Текст", rate=1)
+        self.comment = Comment.objects.create(
+            article=self.article, author_name="Пётр", text="Комментарий для удаления"
+        )
+
+    def test_delete_comment_get_confirmation(self):
+        response = self.client.get(f"/comments/{self.comment.pk}/delete/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Комментарий для удаления")
+        self.assertEqual(Comment.objects.filter(pk=self.comment.pk).count(), 1)
+
+    def test_delete_comment_post_success(self):
+        response = self.client.post(f"/comments/{self.comment.pk}/delete/")
+        self.assertRedirects(response, f"/articles/{self.article.pk}/")
+        self.assertEqual(Comment.objects.filter(pk=self.comment.pk).count(), 0)
+
+    def test_delete_comment_not_found(self):
+        response = self.client.post("/comments/999/delete/")
+        self.assertEqual(response.status_code, 404)
+
 

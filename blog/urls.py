@@ -25,6 +25,8 @@ from articles.views import (
     article_detail,
     articles_list,
     catalog_list,
+    delete_comment,
+    edit_comment,
 )
 
 urlpatterns = [
@@ -34,6 +36,8 @@ urlpatterns = [
     path("catalogs/", catalog_list),
     path("articles/<int:pk>/", article_detail, name="article_detail"),
     path("articles/<int:pk>/comment/", add_comment, name="add_comment"),
+    path("comments/<int:pk>/edit/", edit_comment, name="edit_comment"),
+    path("comments/<int:pk>/delete/", delete_comment, name="delete_comment"),
     path("api/articles/", api_articles_list),
     path("api/articles/<int:pk>/", api_article_detail),
 ]

@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_POST
 
 from articles.forms import CommentForm
-from articles.models import Article, Catalog
+from articles.models import Article, Catalog, Comment
 
 
 def _article_to_dict(article: Article) -> dict:
@@ -88,4 +88,41 @@ def add_comment(request: HttpRequest, pk: int) -> HttpResponse:
             "form": form,
         },
     )
+
+
+def edit_comment(request: HttpRequest, pk: int) -> HttpResponse:
+    comment = get_object_or_404(Comment, pk=pk)
+    if request.method == "POST":
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            return redirect("article_detail", pk=comment.article.pk)
+    else:
+        form = CommentForm(instance=comment)
+
+    return render(
+        request,
+        "articles/comment_edit.html",
+        {
+            "form": form,
+            "comment": comment,
+        },
+    )
+
+
+def delete_comment(request: HttpRequest, pk: int) -> HttpResponse:
+    comment = get_object_or_404(Comment, pk=pk)
+    article_pk = comment.article.pk
+    if request.method == "POST":
+        comment.delete()
+        return redirect("article_detail", pk=article_pk)
+
+    return render(
+        request,
+        "articles/comment_confirm_delete.html",
+        {
+            "comment": comment,
+        },
+    )
+
 
