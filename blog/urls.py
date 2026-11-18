@@ -1,46 +1,29 @@
-"""
-URL configuration for blog project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-
 from django.contrib import admin
 from django.urls import path
 
 from articles.views import (
-    add_comment,
-    api_article_detail,
-    api_articles_list,
-    article_detail,
-    articles_list,
-    catalog_list,
-    delete_comment,
-    edit_comment,
-    my_comments,
+    AddCommentView,
+    ApiArticleDetailView,
+    ApiArticlesListView,
+    ArticleDetailView,
+    ArticlesListView,
+    CatalogListView,
+    CommentDeleteView,
+    CommentEditView,
+    MyCommentsView,
 )
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", articles_list),
-    path("catalog/", catalog_list),
-    path("catalogs/", catalog_list),
-    path("articles/<int:pk>/", article_detail, name="article_detail"),
-    path("articles/<int:pk>/comment/", add_comment, name="add_comment"),
-    path("comments/<int:pk>/edit/", edit_comment, name="edit_comment"),
-    path("comments/<int:pk>/delete/", delete_comment, name="delete_comment"),
-    path("my-comments/", my_comments, name="my_comments"),
-    path("my-comments", my_comments),
-    path("api/articles/", api_articles_list),
-    path("api/articles/<int:pk>/", api_article_detail),
+    path("", ArticlesListView.as_view(), name="articles_list"),
+    path("catalog/", CatalogListView.as_view(), name="catalog_list"),
+    path("catalogs/", CatalogListView.as_view()),
+    path("articles/<int:pk>/", ArticleDetailView.as_view(), name="article_detail"),
+    path("articles/<int:pk>/comment/", AddCommentView.as_view(), name="add_comment"),
+    path("comments/<int:pk>/edit/", CommentEditView.as_view(), name="edit_comment"),
+    path("comments/<int:pk>/delete/", CommentDeleteView.as_view(), name="delete_comment"),
+    path("my-comments/", MyCommentsView.as_view(), name="my_comments"),
+    path("my-comments", MyCommentsView.as_view()),
+    path("api/articles/", ApiArticlesListView.as_view(), name="api_articles_list"),
+    path("api/articles/<int:pk>/", ApiArticleDetailView.as_view(), name="api_article_detail"),
 ]
